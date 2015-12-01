@@ -2,7 +2,8 @@ class Admin::CategoriesController < Admin::BaseController
   cache_sweeper :blog_sweeper
 
   def index; redirect_to :action => 'new' ; end
-  def edit; new_or_edit;  end
+  def edit; end
+
 
   def new 
     respond_to do |format|
@@ -25,7 +26,12 @@ class Admin::CategoriesController < Admin::BaseController
 
   def new_or_edit
     @categories = Category.find(:all)
-    @category = Category.find(params[:id])
+    @category = case params[:id]
+                when nil
+                  Category.new
+                else
+                  Category.find(params[:id])
+                end
     @category.attributes = params[:category]
     if request.post?
       respond_to do |format|
@@ -34,7 +40,7 @@ class Admin::CategoriesController < Admin::BaseController
           @category.save
           @article = Article.new
           @article.categories << @category
-          return render(:partial => 'admin/content/categories')
+          # return render(:partial => 'admin/content/categories')
         end
       end
       return
